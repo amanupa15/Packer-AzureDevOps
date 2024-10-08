@@ -1,0 +1,41 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- None
+
+pool:
+  vmImage: windows-latest
+
+stages:
+  - stage: Packer_Image_Build
+    jobs:
+      - job: validate
+        continueOnError: false
+        steps:
+          - task: PackerTool@0
+            displayName: 'Packer Install'
+            inputs:
+              version: '1.11.2'
+          - task: Packer@1
+            displayName: 'Packer init'
+            inputs:
+              connectedServiceType: 'none'
+              templatePath: 'azure-linux.pkr.hcl'
+              command: 'init'
+          - task: Packer@1
+            displayName: 'Packer validate'
+            inputs:
+              connectedServiceType: 'none'
+              templatePath: 'azure-linux.pkr.hcl'
+              command: 'validate'
+              variables-file: variables.pkr.hcl
+          - task: Packer@1
+            displayName: 'Packer build'
+            inputs:
+              connectedServiceType: 'none'
+              templatePath: 'azure-linux.pkr.hcl'
+              command: 'build'
+              variables-file: 'variables.pkr.hcl'
